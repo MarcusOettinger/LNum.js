@@ -3,26 +3,27 @@
 /** 
  * @file LNum.js: sketch integers on a number line in a html5 canvas
  * @author Marcus Oettinger
- * @version 0.3.1
- * @fileOverview LNum.js is a javascript class used to display a simple number line
- * (displaying natural numbers or integers) on a html5-canvas and
- * do a quite limited set of calculations with integers.
+ * @version 0.1
+ * @overview  LNum.js is a javascript class used to display a simple number line
+ * (displaying natural numbers, integers or rational numbers) on a html5-canvas and
+ * show a quite limited set of basic calculations with integers.
  */
 /**
  * @license MIT (see {@link http://opensource.org/licenses/MIT} or LICENSE.txt).
  */
 /**
  * @classdesc
- * LNum is a javascript object 
+ * LNum is a javascript object plotting integers on a number line.
  * Graphics are drawn onto a html5 canvas - this should nowadays be supported 
  * by most browsers.
  *
- * I wrote the code because I needed a dynamic way to Show natural naumbers and
- * integers in Webpages for a a basic maths lecture. It serves a purpose and is far from
+ * I wrote the code because I needed a dynamic way to Show natural numbers and
+ * integers in html pages for a a basic maths lecture. It serves a purpose and is far from
  * being cleanly written, nicely formatted or similar. If you like it, use it, If you don't
  * - guess what :-)
  * 
- * @class Constructor for a Number line showing the interval [a, b].
+ * @class LNum.js
+ * Number line showing the interval [a, b].
  * usage: object = new LNum( a, b ) creates a new number line, e.g.
  *        myLine = new LNum( -10, 10 );
  * 
@@ -30,9 +31,10 @@
  *
  * - jquery: {@link http://jquery.org}
  * - jcanvas: {@link http://calebevans.me/projects/jcanvas/} (drawing routines)
- * - mathjs: {@link http://mathjs.org} (that can do much more!)
+ * @constructor
  * @param {integer} a: start of the number line (left side)
  * @param {integer} b: end of the number line (right side)
+ * @param {canvas} cnv: optional canvas elementto plot on
 */
 function LNum( a, b, cnv) {
         // Private:
@@ -135,9 +137,34 @@ function LNum( a, b, cnv) {
         // Public:
         // =======================================================
 
-
+        /**
+        /* @method setCanvas ( cnv )
+         * @param {integer} cnv the canvas to use
+         */
         this.setCanvas = function( cnv ) {  _daCanvas = cnv; };
+        /**
+        /* @method getCanvasImage ( type )
+         * @param { string } type type of image
+         * @returns { string } a base64-encoded image
+         */
         this.getCanvasImage = function( type ) { return _daCanvas.getCanvasImage( type ); }
+
+
+        // drawQ(n, settings): draw a rational number q=(z/n) on the number line at q = z/n
+        //
+        //
+        this.drawQ = function ( z, n , options) {
+                var settings = $.extend( {}, _defaults, options );
+                pos = z/n;
+
+                _daCanvas.drawLine({ strokeStyle: settings.color , strokeWidth: 2, rounded: false,
+                        endArrow: false, x1: _XPos(pos) , y1: _y, x2: _XPos(pos), y2: _y - settings.ticklen });
+
+                _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
+                        x: _XPos(pos), y: _y-settings.ticklen-10, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
+                        text: pos });
+        }; // drawticks
+
 
 
         // drawN(n, settings): draw an integer on the number line at n = pos
@@ -151,7 +178,7 @@ function LNum( a, b, cnv) {
                 _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
                         x: _XPos(pos), y: _y-settings.ticklen-10, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
                         text: pos });
-        }; // drawticks
+        }; // drawN
 
 
         //
@@ -175,13 +202,13 @@ function LNum( a, b, cnv) {
                         text: n }); 
             _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
                         x: _XPos(n+m/2), y: _y-settings.ticklen-15, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
-                        text: step});
+                        layer: true,  name: 'myStep', text: step});
             _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
                         x: _XPos(s), y: _y-settings.ticklen-15, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
                         text: s }); 
             _daCanvas.drawRect({  strokeStyle: settings.color, x: _XPos(n+m/2), y: _y-settings.ticklen-15, 
-                width: 30,  height: _daCanvas.measureText(step).height+3
-});
+                       width: _daCanvas.measureText('myStep').width+6,  
+                       height: _daCanvas.measureText('myStep').height+6  });
 
 
         }
