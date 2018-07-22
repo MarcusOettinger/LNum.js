@@ -1,19 +1,18 @@
-<!Doctype html><html>
-<head><title>LNum.js example</title>
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Cnum.js by MarcusOettinger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.0/es5-shim.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.3.0/math.min.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
-<script src="http://lib.familie-oettinger.net/tools/jcanvas.min.js" type="text/javascript"></script>
-<script src='LNum.js'></script>
-<style type="text/css">
-body { font-family: Arial,sans-serif; margin:30px; color; #CCCCCC; line-height:1.3em; }
-div {display: inline-block; display: -moz-inline-grid;}
-span { font-family: Times,serif; font-style:italic; font-weight: bold; font-size: 100%; float: right;}
-table { margin: 20px; }
-td {padding-left: 15px;}
-/* pre {background-color: #999999; color:#FFFFFF;} */
-pre { font-weight: bold; padding-left: 50px; background-color: #CCCCCC; color:#000000;}
-</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="jcanvas.min.js" type="text/javascript"></script>
+<script src='LNum.min.js'></script>
 <script  type="text/javascript">
     function display(){
         line = new LNum( -10, 10, $("#canvas") );
@@ -43,63 +42,159 @@ pre { font-weight: bold; padding-left: 50px; background-color: #CCCCCC; color:#0
 
     $( document ).ready(function() {
         display();      });
-</script>
-</head>
-<body>
-<h1>LNum example</h1>
-<p>LNum.js is a simple javascript class to display integers
-or natural numbers on a number line. The line will
-be drawn on a html5 canvas element and can be read as a string
-containing a base64-encoded image URL.</p>
-<p>I created the class because I needed a simple and fast way to
-create dynamic representation of integers for a basic maths
-lecture.</p>
-<h3>Default behaviour</h3>
-<p>By Default, LNum.js will plot a number line representing an
-interval [a, b] in gray. Tick marks on the line are automatically
-spaced in a more or less reasonable way. Integer numbers in [a,b]
-can easily be drawn on the line:</p>
-<div><canvas id="canvas" width='450' height='150'></canvas></div>
-<div><code><pre>
-line = new LNum( -10, 10, $("#canvas") );     
-line.display();
-line.drawN( 5 );
-line.drawN( -5 );
-</pre></code></div>
-<h3>Options</h3>
-<p>The appearance of the line can be controlled using javascript
-options: here's a more complex example showing an interval of [-30,50]
-in black using a serif font with tick spacing set to 15.
-Some negative numbers starting from -29 to -1 are plotted
-in red, natural numbers in green and a very special value is
-shown large in blue (yes, that's ugly).</p>
-<div>
-<canvas id="canvas2" width='450' height='200'></canvas><br>
-Below is a copy of the canvas im an <img>-tag<br>
-(a base-64 encoded PNG image) - this one can easily<br>
-be copied or saved.<br>
-<img id="cnvimg">
+
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Cnum.js</h1>
+      <h2 class="project-tagline">A javascript class to plot a complex number in a z-plane on a html5 canvas. Plots of basic calculations supported.</h2>
+      <a href="https://github.com/MarcusOettinger/CNum.js" class="btn">View on GitHub</a>
+      <a href="https://github.com/MarcusOettinger/CNum.js/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/MarcusOettinger/CNum.js/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+
+
+
+<h1>CNum example</h1>
+<p>CNum.js is a javascript class to display a complex number in a 
+<a href="https://en.wikipedia.org/wiki/Complex_plane">Gaussian plane</a>
+(sometimes called the z-plane or 
+<a href="http://mathworld.wolfram.com/ArgandDiagram.html">Argand diagram</a>).
+The diagram is drawn on a html5 canvas element and can then be read as
+a base64-encoded image. Simple mathematics (a sum and a product
+of complex numbers) are supported - this is meant as an
+easy way to plot the results.</p>
+
+<p>Want to use the force? You can do so by entering a complex
+number into this text field (maybe you would like to try some
+fancy stuff like <i>12*exp(2*i)+2i )</i>:</p>
+<p>complex number: <input type="text" value="2 + 3i" id="exprinput" size="12" onchange="display()"></p>
+<canvas id="canvas" width='350' height='310'></canvas>
+<div>This is the default appearance: CNum will draw the
+complex number as an arrow in the z-plane, showing real and imaginary
+part in grey. By default, the radius of the pointer will be shown as a circle.
+<pre><code>
+  z = new CNum( $("#exprinput").val());
+  z.setCanvas( $("#canvas") );
+  z.displayGauss();
+</code></pre>
 </div>
-<div><code><pre>
-line2 = new LNum( -30, 50, $("#canvas2") );
-line2.display({ 
-        color:"#000", 
-        fontFamily: "serif", 
-        tickSpacing:15 
-});
-for (n=-29; n<49; n+=3) {
-        n<0?mycol="#F00":mycol="#0B0";        
-        line2.drawN( n , {
-                fontSize:10,
-                color:mycol 
-        });
-}
-line2.drawN(0 , {
-        fontSize:24,
-        color:"#00F",
-        ticklen:25
-});
+<h2>Usage</h2>
+<p>A CNum is an object containing a complex number
+created by a mathematical expression 
+(well, not too surprising...) passed to its 
+constructor. The expression will then be parsed by 
+<a href="http://mathjs.org/">mathjs</a> to set the
+number&rsqot;s value. This implies that many functions like
+exp(), sqrt() or trigonometric functions will work, but
+one should keep in mind that CNum.js does
+not do any plausibility or nonsense checking.</p>
+<p>CNum.js offers methods to create a text representation of
+its value in cartesian, trigonometric and polar representation
+(with a tiny bit of html formatting) - the spans in the second column of
+this table are updated dynamically by the given functions:</p>
+<table>
+<tr><td>cartesian: </td><td><span id="cartesian"></span></td></tr>
+<tr><td>complex conjugate: </td><td><span id="cc"></span></td></tr>
+<tr><td>absolute value: </td><td><span id="abs"></span></td></tr>
+<tr><td>trigonometric: </td><td><span id="trigonometric"></span></td></tr>
+<tr><td>polar: </td><td><span id="polar"></span></td></tr>
+</table>
+
+<h2>Options</h2>
+<canvas id="canvas2" width='350' height='310'></canvas>
+<div><p>If you think your Gaussian plot looks a bit boring,
+you can use colors for arrows, angles or text in a plot.</p>
+<p>Several CNums (resp. the complex values they carry) can be
+plotted on the same canvas by constructing a CNum, displaying
+its value on an existing canvas (this will create the cartesian
+axes automatically) and adding more CNums to the same canvas.</p>
+<p>Have a look at this example to get an idea what the class
+is able to do:</p>
+</div> 
+<pre><code>
+        var o1 = { clear: true, coords: true, circle: false, color: "#F00" };
+        z1 = new CNum( "2+3i" );
+        cnv2 = $("#canvas2");
+        z1.setCanvas( cnv2 );
+        z1.displayGauss(o1);       
+        
+        // construct another one (z2) - when adding to an existing plot, options
+        // clear, coords and circle are silently ignored.
+        var o2 = { clear: false, coords: false, circle: false, color: '#0F0'};
+        z2 = new CNum( "-2+2i" );
+        z1.addToPlot( z2, o2 );
+        
+        // add a third number z3 to the plot and set the color to blue
+        z3 = new CNum( "-1-3i" );
+        z1.addToPlot( z3, { color: "#0000F3" });
+</code></pre>
+
+<h3>Basic operations</h3>
+<div>
+<p>Say, for example, that you want to show addition or multiplication
+of two complex numbers. The first step will probably be constructing
+the numbers themselves (read: the CNum objects) and defining some options
+used to plot them (just to satisfy the gods of aesthetics).
+</p>
+<pre><code>
+        z5 = new CNum( "3+3i" );
+        z6 = new CNum( "-2+i" );
+        var Options = {
+                ReIm: false, Ctext: false, arc: false
+        };
+</pre></code>
+Plot the numbers z5 and z6 onto a canvas with id
+&quot;canvasVectors&quot;
+as
+<pre><code>
+        z5.setCanvas( $("#canvasVectors") );
+        z5.displayGauss(Options );
+        z5.addToPlot(z6, Options );
+</pre></code>
+The result is a plot of vectors in a z-plane without
+any decoration.
+</div>
+<canvas id="canvasVectors" width='350' height='310'></canvas>
+<div>
+<canvas id="canvasAddition" width='350' height='310'></canvas>
+<div class="caption">The sum of two complex numbers z5 + z6.</div>
+<canvas id="canvasMultiplication" width='350' height='310'></canvas>
+<div class="caption">The product of two complex numbers z5 &middot; z6.</div>
+</div>
+<div style="margin-top:100px;">
+Let's do some maths and have a look at a sum and a product
+of the numbers defined above. After declaring some more
+options used to plot the results
+<pre><code>
+        var OptionsResult = {
+                ReIm: false, Ctext: true, 
+                colarrow: true, color: '#A00',
+                arc: true
+        };
+</pre></code>
+adding or multiplying the numbers and drawing the results
+is as simple as
+<pre><code>
+        z5.setCanvas( $("#canvasAddition") );
+        z5.addCNum(z6, Options , OptionsResult);
+        
+        z5.setCanvas( $("#canvasMultiplication") );
+        z5.multiplyCNum(z6, Options , OptionsResult);
 </pre></code></div>
-<canvas id="canvas3" width='450' height='200'></canvas><br>
-</body>
+
+
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/MarcusOettinger/CNum.js">Cnum.js</a> is maintained by <a href="https://github.com/MarcusOettinger">MarcusOettinger</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
 </html>
