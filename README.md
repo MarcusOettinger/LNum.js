@@ -20,7 +20,7 @@ Usage is simple: line = new LNum( start, end, canvas ) creates a new LNum object
 on canvas, line.display() draws the number line on the canvas. Numbers can be
 added by line.drawN() or line.drawQ().
 
-For further information see the LNum.js [doc/index.html](documentation).
+For further information see the LNum.js [documentation](doc/index.html).
 
 ## Installation
 
@@ -30,6 +30,6 @@ jquery. That's it.
 ## Licensing
 
 This project is licensed under the terms of the 
-[LICENSE.md](MIT license).
+[MIT license](LICENSE.md).
 
 
