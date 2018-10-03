@@ -2,7 +2,7 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>Cnum.js by MarcusOettinger</title>
+    <title>LNum.js by MarcusOettinger</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
@@ -11,14 +11,16 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.0/es5-shim.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.3.0/math.min.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-<script src="jcanvas.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/21.0.1/min/jcanvas.min.js" type="text/javascript"></script>
 <script src='LNum.min.js'></script>
+
 <script  type="text/javascript">
     function display(){
         line = new LNum( -10, 10, $("#canvas") );
         line.display();
         line.drawN( 5 );
-        line.drawN( -5 );
+        line.drawN( -5.5 );
+        line.drawQ( 6, 5 );
         
 	line2 = new LNum( -30, 50, $("#canvas2") );
         line2.display({ color:"#000", fontFamily: "serif", tickSpacing:15 });
@@ -42,12 +44,12 @@
 
     $( document ).ready(function() {
         display();      });
-
-  </head>
-  <body>
+</script>
+</head>
+<body>
     <section class="page-header">
-      <h1 class="project-name">Lnum.js</h1>
-      <h2 class="project-tagline">A javascript class to plot a complex number in a z-plane on a html5 canvas. Plots of basic calculations supported.</h2>
+      <h1 class="project-name">LNum.js</h1>
+      <h2 class="project-tagline">A javascript class to plot natural, whole or rational numbers on a number line. Graphics are drawn on a html5-canvas and can easily be converted to png, gif, jpeg or inline images. Sums can be drawn as steps on the line.</h2>
       <a href="https://github.com/MarcusOettinger/LNum.js" class="btn">View on GitHub</a>
       <a href="https://github.com/MarcusOettinger/LNum.js/zipball/master" class="btn">Download .zip</a>
       <a href="https://github.com/MarcusOettinger/LNum.js/tarball/master" class="btn">Download .tar.gz</a>
@@ -55,32 +57,44 @@
 
     <section class="main-content">
 
-<h1>LNum example</h1>
+<h1>LNum.js example</h1>
+
+<ul style="list-style-type: none; margin:0; padding:10px; text-decoration: underline; font-size:90%;">
+	<li><a href="#numbers">Drawing numbers</a>
+	<li><a href="#options">Options</a>
+	<li><a href="#sums">Drawing sums</a>
+</ul>
 
 <p>LNum.js is a simple javascript class to display numbers on a number line. The line will be drawn on a html5 canvas element and can be read as a string containing a base64-encoded image URL.</p>
 <p>I created the class because I needed a simple and fast way to create dynamic representation of integers for a basic maths lecture.</p>
 
-<p>By Default, LNum.js will plot a number line representing an
-interval [a, b] in gray. Tick marks on the line are automatically
-spaced in a more or less reasonable way. Integer numbers in [a,b]
-can easily be drawn on the line:</p>
+<h3 id="numbers">Drawing numbers</h3>
+<p>By Default, LNum.js will plot a number line representing an interval [a, b] in gray. Tick marks on the line are automatically spaced in a more or less reasonable way.</p>
+<p>Whole or decimal numbers in [a,b] can easily be drawn on the line using the method drawN( n, [ options]).</p>
+<p>If you want to draw a <a href="https://en.wikipedia.org/wiki/Rational_number">rational number</a> <b> q = z/n </b> use the method drawQ( z, n, [options]) where <b>z</b> is the dividend and <b>n</b> the divisor of of the quotient.
+</p>
 <div><canvas id="canvas" width='450' height='150'></canvas></div>
 <div><code><pre>
 line = new LNum( -10, 10, $("#canvas") );     
 line.display();
 line.drawN( 5 );
-line.drawN( -5 );
+line.drawN( -5.5 );
+line.drawQ( 6, 5 );
 </pre></code></div>
-<h3>Options</h3>
+
+<p>Natural or whole numbers can be drawn as in the example above. If you'd like to show a rational number 
+</p>
+
+<h3 id="options">Options</h3>
 <p>The appearance of the line can be controlled using javascript
 options: here's a more complex example showing an interval of [-30,50]
 in black using a serif font with tick spacing set to 15.
-Some negative numbers starting from -29 to -1 are plotted
-in red, natural numbers in green and a very special value is
+Some negative numbers starting from -29 to -2 are plotted
+in red, some natural numbers in green and a very special value is
 shown large in blue (yes, that's ugly).</p>
 <div>
 <canvas id="canvas2" width='450' height='200'></canvas><br>
-Below is a copy of the canvas im an <img>-tag<br>
+Below is a copy of the canvas in an IMG-tag<br>
 (a base-64 encoded PNG image) - this one can easily<br>
 be copied or saved.<br>
 <img id="cnvimg">
@@ -105,7 +119,20 @@ line2.drawN(0 , {
         ticklen:25
 });
 </pre></code></div>
+
+<h3 id="sums">Drawing sums</h3>
+<p>A simple addition of the form <b>n + step</b> can be shown using the method drawSum( n, step, [options]) where <b>n</b> is the number to start with, <b>step</b> the summand. The addition will be visualized as an arrow representing a step on the number line and the resulting number will be drawn automagically.</p>
+<p>As an example, here is the visual representation of the expression <b>1 - 3&middot;(-2) = -5</b> (yes, you knew that already...)</p>
 <canvas id="canvas3" width='450' height='200'></canvas><br>
+<div><code><pre>
+        line3 = new LNum( -8, 1, $("#canvas3") );
+        line3.display();
+        line3.drawN( -5 );
+        line3.drawSum(1,-2);
+        line3.drawSum(-1,-2);
+        line3.drawSum(-3,-2);
+</pre></code></div>
+
 
 
 
@@ -117,7 +144,6 @@ line2.drawN(0 , {
       </footer>
 
     </section>
-
   
-  </body>
+</body>
 </html>
