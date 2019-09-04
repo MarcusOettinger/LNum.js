@@ -312,7 +312,16 @@ function LNum( a, b, cnv) {
          * @returns { string }
          */
         this.getCanvasImage = function( type ) {
-		return _daCanvas.getCanvasImage( type );
+        	if (_daCanvas.toDataURL) {
+			// JPEG quality defaults to 1
+			//if (quality === undefined) {
+				quality = 1;
+			//}
+			dataURL = _daCanvas.toDataURL('image/' + type, quality);
+		} else {
+			console.log('No toDataURL? Bummer!');
+		}
+		return dataURL;
 	}
 
 
