@@ -73,11 +73,13 @@ function LNum( a, b, cnv) {
 
         /**
 	 *
-	 * extend: mimick the jQuery.extend() function (merge the 
+	 * extend(): mimick the jQuery.extend() function (merge the 
 	 * contents of two or more objects together into the first 
 	 * object).
 	 * @private
-         * @param { target [, object1 ] [, objectN ] }
+         * @param { Object } target
+	 * @param {Object } [ object1 ]
+	 * @param {object } [ objectN ] 
 	 */
         function extend(){
 	    for(var i=1; i<arguments.length; i++)
