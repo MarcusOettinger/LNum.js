@@ -1,41 +1,17 @@
-// M. Oettinger 05/2015, Marcus -at- oettinger-physics.de
-//
-/** 
- * @file LNum.js: sketch integers on a number line in a html5 canvas
- * @author Marcus Oettinger
- * @version 0.1
- * @overview  LNum.js is a javascript class used to display a simple number line
- * (displaying natural numbers, integers or rational numbers) on a html5-canvas and
- * show a quite limited set of basic calculations with integers.
- */
+// Tue Sep  3 16:05:41     2019
+// v 0.2: vanilla javascript (a bit more suckless - does not rely on
+// jQuery and jcanvas anymore).
 /**
- * @license MIT (see {@link http://opensource.org/licenses/MIT} or LICENSE.txt).
+ * @class LNum
+ * @author Marcus Oettinger <info@oettinger-physics.de>
+ * @version 0.2
+ * @license MIT License
+ * @see {@link https://marcusoettinger.github.io/LNum.js|LNum Example}
+ * LNum ( a, b, cnv): LNum constructor
+ * @param{number} a: start of interval [a,b]
+ * @param{number} b: end of interval
+ * @param{object} cnv: the canvas to draw on
  */
-/**
- * @classdesc
- * LNum is a javascript object plotting integers on a number line.
- * Graphics are drawn onto a html5 canvas - this should nowadays be supported 
- * by most browsers.
- *
- * I wrote the code because I needed a dynamic way to Show natural numbers and
- * integers in html pages for a a basic maths lecture. It serves a purpose and is far from
- * being cleanly written, nicely formatted or similar. If you like it, use it, If you don't
- * - guess what :-)
- * 
- * @class LNum.js
- * Number line showing the interval [a, b].
- * usage: object = new LNum( a, b ) creates a new number line, e.g.
- *        myLine = new LNum( -10, 10 );
- * 
- * LNum.js uses some external libraries:
- *
- * - jquery: {@link http://jquery.org}
- * - jcanvas: {@link http://calebevans.me/projects/jcanvas/} (drawing routines)
- * @constructor
- * @param {integer} a: start of the number line (left side)
- * @param {integer} b: end of the number line (right side)
- * @param {canvas} cnv: optional canvas elementto plot on
-*/
 function LNum( a, b, cnv) {
         // Private:
         // -----------------------------------------------------------------------------
@@ -49,9 +25,21 @@ function LNum( a, b, cnv) {
         var _SCALE = 10.0;	//
         var _tickLength= 3;	// length of main ticks
         var _daCanvas = cnv;	// the canvas to use
+        var _dactx = _daCanvas.getContext("2d");	// the canvas to use
         var _TICKSCALE= 1;
 
-        // default options - values are settable for every number displayed
+        /** 
+	 * options 
+	 * @typedef {options}
+	 * @property {boolean} clear - whether the canvas should be cleared
+	 * @property {boolean} line - whether the numberline should be drawn
+	 * @property {number} tickSpacing - 0 to autospace, draw a tick for every whole number
+	 * @property {number} font Size - font size in pixel, e.g. '10', '10px'
+	 * @property {string} fontFamily - the font family (default: "sans-serif")
+	 * @property {number} ticklen - size of the ticks on the line (default: 10)
+	 * @property {string} color - color to use for numbers and the line if set to true (default "#888")
+	 * @property {number} linewidth - width of lines drawn in px (default 1)
+	 */
         var _defaults = { 
             		// general plot options
             		clear: false, 		// clear canvas
@@ -62,21 +50,47 @@ function LNum( a, b, cnv) {
             		tickSpacing: 0,
 
             		// options for integers plotted on the line
-            		fontSize: 14, 
+            		fontSize: '14px', 
             		fontFamily: "sans-serif",
-            		ticklen: "10",
+            		ticklen: 10,
             		// colors
-            		color: "#888", 		// color to use for displaying an integer (in [a,b]) if line is false,
-                                                                                     // rsp. color of the whole line (if line is true)
+            		color: "#888", 		
+			// color to use for drawing a number (in [a,b]) if line
+			// is false, rsp. color of the whole line (if line is
+			// true)
+			linewidth: 1,
+			startArrow: false,
+			endArrow: false,
+			arrowAngle: 45,
+			arrowRadius: 10,
         };
 
 
-        // handle interval:
-        a == b? b=a+10:b;	// paranoia mode!
-        _left = min(a,b);		// catch direction problems
+        // check interval: paranoia mode!
+        a == b? b=a+10:b;
+        _left = min(a,b);
         _right = max(a,b);
 
-        // calculate coordinates of an integer on the canvas
+        /**
+	 *
+	 * extend(): mimick the jQuery.extend() function (merge the 
+	 * contents of two or more objects together into the first 
+	 * object).
+	 * @private
+         * @param { Object } target
+	 * @param {Object } [ object1 ]
+	 * @param {object } [ objectN ] 
+	 */
+        function extend(){
+	    for(var i=1; i<arguments.length; i++)
+	        for(var key in arguments[i])
+	            if(arguments[i].hasOwnProperty(key))
+	                arguments[0][key] = arguments[i][key];
+	    return arguments[0];
+	}
+
+
+        // calculate coordinates of a number on the canvas
         function _XScaled(x) { return _SCALE * x; };
         function _XPos(x) { return _offset + _XScaled(x); };
         function _YPos(y) { return _y };
@@ -84,19 +98,49 @@ function LNum( a, b, cnv) {
         // return the sign of a number x (this ought to be fast and safe)
         function sign(x) { return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN; }
 
-        // return minimum in the sense of: b if b<a, a otherwise.
+        // minimum in the sense of: b if b<a, a otherwise.
         function min(a,b){ if (b<a){ return b; } return a; };
 
-        // return maximum in the sense of: b if b>a, a otherwise.
+        // maximum in the sense of: b if b>a, a otherwise.
         function max(a,b){ if (b>a){ return b; } return a; };
 
-        // SetScale: calculate a reasonable scale to plot a number line
-        // from a to b on the canvas 
+	// check if the string input end with search
+	function endsWith(input, search) {
+		var index = input.length - search.length;
+		return index >= 0 && input.indexOf(search, index) > -1;
+	}
+
+
+	/**
+	 *
+	 * _setFont: set the font to use on the canvas context.
+	 * @private
+         * @param { ctx } the context
+         * @param { params } options ('fontSize' and 'fontFamily' are used to define a font)
+	 */
+	function _setFont(ctx, params) {
+		var str = params.fontSize;
+		// convert size to the form 'XXpx'
+		if (endsWith(str, 'px') == false) {
+			while (isNaN(str) && str.length > 1) str = str.substring(0, str.length - 1);
+			str = str + 'px';
+		}
+		ctx.font = str + ' ' + params['fontFamily'];
+	}
+
+
+        /**
+	 *
+	 * SetScale: calculate a reasonable scale to plot a number line from a to b on the canvas
+	 * @private
+         * @param { settings } options - LNum {@link options}
+	 */
         function setScale( settings ) {
                     _len = _right - _left;
-                    _SCALE = (_daCanvas.width() - 2 * _margin) / _len;
-                    _offset = _margin - (_SCALE * min(a,b));       // Position of Zero
-                    _y = _daCanvas.height()/2 + _margin;
+                    _SCALE = (_daCanvas.width - 2 * _margin) / _len;
+			// Position of Zero
+                    _offset = _margin - (_SCALE * min(a,b));       
+                    _y = _daCanvas.height/2 + _margin;
                     if (settings.tickSpacing == 0) {
                         while (_len /_TICKSCALE > 10) {
                            _TICKSCALE= _TICKSCALE+1; 
@@ -106,140 +150,284 @@ function LNum( a, b, cnv) {
                         _TICKSCALE = settings.tickSpacing;
                     }
         } // SetScale
+        
+        // the drawing primitives used: line (with arrow heads if desired),
+        // text, rectangle
+        
+        // Adds arrow to path using the given properties
+	function _addArrow(ctx, params, x1, y1, x2, y2) {
+		var leftX, leftY,
+			rightX, rightY,
+			offsetX, offsetY,
+			atan2 = Math.atan2,
+			PI = Math.PI,
+			round = Math.round,
+			abs = Math.abs,
+			sin = Math.sin,
+			cos = Math.cos,
+			angle;
+
+		// If arrow radius is given
+		if (params.arrowRadius) {
+			// Calculate angle
+			angle = atan2((y2 - y1), (x2 - x1));
+			// Adjust angle correctly
+			angle -= PI;
+			// Calculate offset to place arrow at edge of path
+			offsetX = (params.linewidth* cos(angle));
+			offsetY = (params.linewidth* sin(angle));
+
+			// Calculate coordinates for left half of arrow
+			leftX = x2 - (params.arrowRadius * cos(angle + (params.arrowAngle / 2)));
+			leftY = y2 + (params.arrowRadius * sin(angle + (params.arrowAngle / 2)));
+			// Calculate coordinates for right half of arrow
+			rightX = x2 - (params.arrowRadius * cos(angle - (params.arrowAngle / 2)));
+			rightY = y2 + (params.arrowRadius * sin(angle - (params.arrowAngle / 2)));
+
+			// Draw left half of arrow
+			ctx.moveTo(leftX - offsetX, leftY - offsetY);
+			ctx.lineTo(x2 - offsetX, y2 - offsetY);
+			// Draw right half of arrow
+			ctx.lineTo(rightX - offsetX, rightY - offsetY);
+
+			// Visually connect arrow to path
+			ctx.moveTo(x2 - offsetX, y2 - offsetY);
+			ctx.lineTo(x2 + offsetX, y2 + offsetY);
+			// Move back to end of path
+			ctx.moveTo(x2, y2);
+		}
+	}
 
 
-        // drawticks(pos): draw ticks on the number line at n = pos
-        // (internal function used by axis())
-        //
-        function drawticks(pos, settings) {
-                _daCanvas.drawLine({ strokeStyle: settings.color, strokeWidth: 2, rounded: false,
-                        endArrow: false, x1: _XPos(pos) , y1: _y, x2: _XPos(pos), y2: _y + _tickLength })
-                _daCanvas.drawText({ strokeStyle: settings.color, strokeWidth: 1,
-                        x: _XPos(pos), y: _y+10, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
-                        text: pos });
-        }; // drawticks
+	/** _drawLine: draw a line on the canvas. Start and end point
+	 * of the line are x1/y1 and x2/y2 in the array of settings.
+	 * @private
+	 * @param { params } options - LNum {@link options}
+	 * @param { options } options - LNum {@link options}
+	 * @example _drawLine({ color: 'red', linewidth: 2,
+	 * x1: 1, y1: 1, x2: 10, y2: 10, endArrow: true })
+	 */
+        function _drawLine(params, options) {
+        	if ( _dactx == null ) return;
+		var settings= extend( {}, params, options);
+		_dactx.strokeStyle = settings.color;
+		_dactx.strokeWidth = settings.linewidth;
+		_dactx.beginPath();
+	       	_dactx.moveTo(settings['x1'], settings['y1']);
+	       	_dactx.lineTo(settings['x2'], settings['y2']);
+
+		if (settings.endArrow)
+			_addArrow(_dactx, settings, settings.x1, settings.y1, settings.x2, settings.y2);
+		if (settings.startArrow)
+			_addArrow(_dactx, settings, settings.x2, settings.y2, settings.x1, settings.y1);
+			
+		_dactx.stroke();
+        }
+        
+       /** _drawText: draw text on the canvas at x/y (centered) using
+       	 * the given options.
+	 * @private
+	 * @param { params } options - LNum {@link options}
+	 * @param { options } options - LNum {@link options}
+	 * @example _drawText({ color: 'red', x: 10, y: 20,
+	 * fontSize: '24px', fontFamily: 'Arial', text: 'Hallo Welt' })
+	 */
+        function _drawText(params, options) {
+		if ( _dactx == null ) return;
+		var settings = extend( {}, params, options);
+		_dactx.beginPath();
+		_dactx.strokeStyle = settings.color;
+		_dactx.strokeWidth = settings.linewidth;
+		_dactx.fillStyle = settings.color;
+	       	_setFont(_dactx, settings);
+	       	_dactx.textAlign = "center";
+	       	_dactx.textBaseline = "middle";
+	       	_dactx.fillText(settings['text'], settings['x'], settings['y']);
+	       }
+	       
+	/** _drawRect: draw a rectangle on the canvas. 
+	 * @private
+	 * @param { params } options - LNum {@link options}
+	 * @param { options } options - LNum {@link options}
+	 * @example _drawRect({ color: 'red', linewidth: 3,
+	 * x: 10, y: 20, width: 30, height: 10 })
+	 */
+	function _drawRect(params, options) {
+		if ( _dactx == null ) return;
+		var settings = extend( {}, params, options);
+		_dactx.beginPath();
+		_dactx.strokeStyle = settings.color;
+		_dactx.strokeWidth = settings.linewidth;
+		_dactx.rect(settings['x'], settings['y'], settings['width'], settings['height']);
+		_dactx.stroke();
+	       }
 
 
-        // draw the number line onto _daCanvas
-        //
+        /**
+	 *
+	 * drawtick: draw a tick mark on the number line at pos = n
+	 * @private
+         * @param { number } pos - where to draw the tick
+         * @param { options } options - LNum {@link options}
+	 */
+        function drawtick(pos, options) {
+                var settings = extend( {}, _defaults, options );
+                
+                _drawLine(settings, { endArrow: false, x1: _XPos(pos), 
+			y1: _y, x2: _XPos(pos), y2: _y + _tickLength })
+                _drawText(settings, { x: _XPos(pos), y: _y+15, text: pos });
+        };
+
+
+        /** draw the number line onto _daCanvas
+	 * @private
+         * @param { options } options - LNum {@link options}
+        */
         function numberline(options){
-               if (_daCanvas == null) return;
-                var settings = $.extend( {}, _defaults, options );
+               if (_daCanvas == null || _dactx == null) return;
+               var settings = extend( {}, _defaults, options );
 
-               _daCanvas.drawLine({ strokeStyle: settings.color, strokeWidth: 2, rounded: false,
-                       endArrow: false, x1: _margin, y1: _y, x2: _margin + _len * _SCALE , y2: _y });
+               _drawLine(settings, { endArrow: false, x1: _margin, y1: _y,
+			x2: _margin + _len * _SCALE , y2: _y });
                 for ( i=_left; i<=_right; i+=_TICKSCALE) {
-                    drawticks(i, settings);
+			drawtick(i, settings);
                 }
-        }; // axis
+        };
+        
 
         // =======================================================
         // Public:
         // =======================================================
 
         /**
-        /* @method setCanvas ( cnv )
+         * setCanvas ( cnv ): set the canvas to draw the line on
          * @param {integer} cnv the canvas to use
          */
-        this.setCanvas = function( cnv ) {  _daCanvas = cnv; };
+        this.setCanvas = function( cnv ) { 
+        	_daCanvas = cnv;
+        	_dactx = cnv.getContext("2d");
+        };
+
         /**
-        /* @method getCanvasImage ( type )
+	 * Return the current image as base64-encoded image-string
          * @param { string } type type of image
-         * @returns { string } a base64-encoded image
+         * @returns { string }
          */
-        this.getCanvasImage = function( type ) { return _daCanvas.getCanvasImage( type ); }
+        this.getCanvasImage = function( type ) {
+        	if (_daCanvas.toDataURL) {
+			// JPEG quality defaults to 1
+			//if (quality === undefined) {
+				quality = 1;
+			//}
+			dataURL = _daCanvas.toDataURL('image/' + type, quality);
+		} else {
+			console.log('No toDataURL? Bummer!');
+		}
+		return dataURL;
+	}
 
 
-        // drawQ(n, settings): draw a rational number q=(z/n) on the number line at q = z/n
-        //
-        //
+        /** 
+         * drawQ( z, n, options ): draw a rational number q=(z/n) where z is a whole number and n a natural one on the number line at q = z/n.
+         * @param { number } z - the numerator of the fraction
+         * @param { number } n - the denominator of the fraction (not 0)
+         * @param { options } options - LNum {@link options}
+         */
         this.drawQ = function ( z, n , options) {
-                var settings = $.extend( {}, _defaults, options );
-                pos = z/n;
+                if ( n==0 ) { 
+                    alert("n in q=z/n must not be zero!");
+                    return;
+                }
+                var settings = extend( {}, _defaults, options );
+                var pos = _XPos(z/n);
+                var y0 = _y-settings.ticklen;
 
-                _daCanvas.drawLine({ strokeStyle: settings.color , strokeWidth: 2, rounded: false,
-                        endArrow: false, x1: _XPos(pos) , y1: _y, x2: _XPos(pos), y2: _y - settings.ticklen });
+                _drawText( settings, { x: pos, y: y0-13, text: n });
+                var h = parseInt(_dactx.font.match(/\d+/), 10);
+                var w = _dactx.measureText(n).width;
+                
+                _drawLine( settings, { endArrow: false, 
+                	x1: pos , y1: _y , x2: pos, y2: y0});
+                _drawLine( settings, { endArrow: false, 
+                	x1: pos-w/2 , y1: y0- h -8 ,
+			x2: pos+w/2, y2: y0 - h - 8});
+                _drawText( settings, { x: pos, y: y0 - h -16 ,
+                        text: z });
+        }; /* drawQ */
 
-                _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
-                        x: _XPos(pos), y: _y-settings.ticklen-10, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
-                        text: pos });
-        }; // drawticks
 
-
-
-        // drawN(n, settings): draw an integer on the number line at n = pos
-        //
-        //
+        /**
+	 * Draw a number on the number line at n. Decimal numbers are ok.
+         * @param { number } n - the number to draw
+         * @param { options } options - LNum {@link options}
+         */
         this.drawN = function ( pos , options) {
-                var settings = $.extend( {}, _defaults, options );
+                var settings = extend( {}, _defaults, options );
 
-                _daCanvas.drawLine({ strokeStyle: settings.color , strokeWidth: 2, rounded: false,
-                        endArrow: false, x1: _XPos(pos) , y1: _y, x2: _XPos(pos), y2: _y - settings.ticklen })
-                _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
-                        x: _XPos(pos), y: _y-settings.ticklen-10, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
-                        text: pos });
-        }; // drawN
+                _drawLine( settings, { endArrow: false,
+                	x1: _XPos(pos) , y1: _y,
+			x2: _XPos(pos), y2: _y - settings.ticklen })
+                _drawText( settings, { x: _XPos(pos), y: _y-settings.ticklen-10,
+			text: pos });
+        }; /* drawN */
 
 
-        //
-        //
+        /** 
+         * Draw the starting value n and the step needed for n+m and the result
+	 * @param {number} n - the number to start with
+	 * @param {number} m - the summand to add
+         * @param { options } options - LNum {@link options}
+         */
         this.drawSum = function( n, m, options ) {
             var s = n + m;
-            if (m>0) 
-                step = "+" + m;
-            else
-                step = m;
-            var settings = $.extend(  _defaults, { ticklen: 35 },  options );
-            _daCanvas.drawLine({ strokeStyle: settings.color , strokeWidth: 1, rounded: false,
-                        endArrow: false, x1: _XPos(n) , y1: _y, x2: _XPos(n), y2: _y - settings.ticklen })
-            _daCanvas.drawLine({ strokeStyle: settings.color , strokeWidth: 1, rounded: false,
-                        endArrow: false, x1: _XPos(s) , y1: _y, x2: _XPos(s), y2: _y - settings.ticklen })
-            _daCanvas.drawLine({ strokeStyle: settings.color , strokeWidth: 2, rounded: false, 
-                        endArrow: true, arrowRadius: 10, arrowAngle: 45, 
-                        x1: _XPos(n), y1: _y - settings.ticklen-5, x2: _XPos(s) , y2: _y - settings.ticklen -5 })
-            _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
-                        x: _XPos(n), y: _y-settings.ticklen-15, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
+            var corr = sign(m) * 4;
+            if (m>0) {
+                step = "+" + m.toString();
+            } else {
+                step = m.toString();
+            }
+            var settings = extend( {}, _defaults, { ticklen: 35 },  options );
+
+		_drawLine( settings, { x1: _XPos(n), y1: _y,
+			x2: _XPos(n), y2: _y - settings.ticklen })
+		_drawLine( settings, { x1: _XPos(s) ,	y1: _y,
+			x2: _XPos(s), y2: _y - settings.ticklen })
+		_drawLine( settings, { endArrow: true,
+			arrowRadius: 10, arrowAngle: 45, 
+                        x1: _XPos(n) + corr, y1: _y - settings.ticklen-5,
+			x2: _XPos(s) - corr , y2: _y - settings.ticklen -5 })
+		_drawText( settings, { x: _XPos(n), y: _y-settings.ticklen-15,
                         text: n }); 
-            _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
-                        x: _XPos(n+m/2), y: _y-settings.ticklen-15, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
-                        layer: true,  name: 'myStep', text: step});
-            _daCanvas.drawText({ strokeStyle: settings.color, fillStyle: settings.color, strokeWidth: 1,
-                        x: _XPos(s), y: _y-settings.ticklen-15, fontSize: settings.fontSize, fontFamily: settings.fontFamily,
-                        text: s }); 
-            _daCanvas.drawRect({  strokeStyle: settings.color, x: _XPos(n+m/2), y: _y-settings.ticklen-15, 
-                       width: _daCanvas.measureText('myStep').width+6,  
-                       height: _daCanvas.measureText('myStep').height+6  });
+		_drawText( settings, { x: _XPos(n+m/2), y: _y-settings.ticklen-15,
+			text: step});
+		_drawText( settings, { x: _XPos(s), y: _y-settings.ticklen-15,
+			text: s });
 
+                var rec_w = _dactx.measureText(step).width + 6;
+                var rec_h = parseInt(_dactx.font.match(/\d+/), 10);
+    		_drawRect( settings, { x: _XPos(n+m/2) - rec_w/2 ,
+    			y: _y - settings.ticklen-6, 
+			width: rec_w, height: -(rec_h + 6)  });
+        } // drawSum
 
-        }
-
-        // * clear canvas and draw 
-        // 
         /** Draw the number line on the canvas set by
-         *@see setCanvas. This function should be used to to plot the line itself.
-         *
-         * @see addToPlot
-         * @param {boolean} clear - Clear canvas before displaying complex number if set (default: true)
-         * @param {boolean} coords - Draw a cartesian coordinate system if set (default: true)
-         * @param {boolean} circle - Draw a circle with radius |z| (this is poor man's rotating pointer, default: true)
-         * @param {boolean} ReIm - Show real and imaginary parts by thin vertical/horizontal lines in color (see below, default: true)
-        * @param {boolean} color - a color in html notation (default "#888")
-        * @param {boolean} colarrow - draw arrow in color if set (default: black arrow)
-        * @param {optional number} radius scale the plot for a complex number of this value (default: autoscale)
+         * @see setCanvas.
+	 * This function is used to to plot the line itself.
+         * @param { options } options - LNum {@link options}
         */
         this.display = function(options){
                 // handle defaults
-                var settings = $.extend( {}, _defaults, { clear:true, line: true }, options );
+                var settings = extend( {}, _defaults, { clear:true, line: true }, options );
 
                 setScale( settings );
                 if (settings.clear) {
-                    _daCanvas.clearCanvas();
+                    _dactx.clearRect(0, 0, _daCanvas.width, _daCanvas.height);
                     _count = 0;
                 }
                 if (settings.line) numberline(settings);
+
         };
 
         // return a brandnew LNum :-)
         return this;
-
-}; // -- LNum --
+};
