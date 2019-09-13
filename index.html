@@ -8,21 +8,19 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.0/es5-shim.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.3.0/math.min.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/21.0.1/min/jcanvas.min.js" type="text/javascript"></script>
-<script src='LNum.min.js'></script>
+    <script src='LNum.min.js'></script>
 
-<script  type="text/javascript">
+<script>
     function display(){
-        line = new LNum( -10, 10, $("#canvas") );
+	var c = document.getElementById('canvas');
+        line = new LNum( -10, 10, c );
         line.display();
         line.drawN( 5 );
         line.drawN( -5.5 );
         line.drawQ( 6, 5 );
         
-	line2 = new LNum( -30, 50, $("#canvas2") );
+	var c2 = document.getElementById('canvas2');
+	line2 = new LNum( -30, 50, c2 );
         line2.display({ color:"#000", fontFamily: "serif", tickSpacing:15 });
         for (n=-29; n<49; n+=3) {
                  n<0?mycol="#F00":mycol="#0B0";        
@@ -34,7 +32,8 @@
 //        window.open(image);
         $("#cnvimg").attr('src', image);
         
-        line3 = new LNum( -8, 1, $("#canvas3") );
+	var c3 = document.getElementById('canvas3');
+        line3 = new LNum( -8, 1, c3 );
         line3.display();
         line3.drawN( -5 );
         line3.drawSum(1,-2);
@@ -42,8 +41,9 @@
         line3.drawSum(-3,-2);
     };
 
-    $( document ).ready(function() {
-        display();      });
+    (function(){
+        display();
+    })();
 </script>
 </head>
 <body>
@@ -75,7 +75,8 @@
 </p>
 <div><canvas id="canvas" width='450' height='150'></canvas></div>
 <div><code><pre>
-line = new LNum( -10, 10, $("#canvas") );     
+var c = document.getElementById('canvas');
+line = new LNum( -10, 10, c );
 line.display();
 line.drawN( 5 );
 line.drawN( -5.5 );
@@ -100,7 +101,8 @@ be copied or saved.<br>
 <img id="cnvimg">
 </div>
 <div><code><pre>
-line2 = new LNum( -30, 50, $("#canvas2") );
+var c2 = document.getElementById('canvas2');
+line2 = new LNum( -30, 50, c2 );
 line2.display({ 
         color:"#000", 
         fontFamily: "serif", 
@@ -125,17 +127,14 @@ line2.drawN(0 , {
 <p>As an example, here is the visual representation of the expression <b>1 + 3&middot;(-2) = -5</b> (guess you knew that already...)</p>
 <canvas id="canvas3" width='450' height='200'></canvas><br>
 <div><code><pre>
-        line3 = new LNum( -8, 1, $("#canvas3") );
+	var c3 = document.getElementById('canvas3');
+        line3 = new LNum( -8, 1, c3 );
         line3.display();
         line3.drawN( -5 );
         line3.drawSum(1,-2);
         line3.drawSum(-1,-2);
         line3.drawSum(-3,-2);
 </pre></code></div>
-
-
-
-
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/MarcusOettinger/CNum.js">Cnum.js</a> is maintained by <a href="https://github.com/MarcusOettinger">MarcusOettinger</a>.</span>
