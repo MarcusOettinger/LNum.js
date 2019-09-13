@@ -10,42 +10,6 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.0/es5-shim.min.js"></script>
     <script src='LNum.js'></script>
-
-<script>
-    function display(){
-	var c = document.getElementById('canvas');
-        line = new LNum( -10, 10, c );
-        line.display();
-        line.drawN( 5 );
-        line.drawN( -5.5 );
-        line.drawQ( 6, 5 );
-        
-	var c2 = document.getElementById('canvas2');
-	line2 = new LNum( -30, 50, c2 );
-        line2.display({ color:"#000", fontFamily: "serif", tickSpacing:15 });
-        for (n=-29; n<49; n+=3) {
-                 n<0?mycol="#F00":mycol="#0B0";        
-		line2.drawN( n , {fontSize:10, color:mycol });
-	}
-	line2.drawN(0 , { fontSize:24, color:"#00F", ticklen:25 });
-        image = line2.getCanvasImage('png');
-//        image = image.replace("image/png", "application/octet-stream");
-//        window.open(image);
-        $("#cnvimg").attr('src', image);
-        
-	var c3 = document.getElementById('canvas3');
-        line3 = new LNum( -8, 1, c3 );
-        line3.display();
-        line3.drawN( -5 );
-        line3.drawSum(1,-2);
-        line3.drawSum(-1,-2);
-        line3.drawSum(-3,-2);
-    };
-
-    (function(){
-        display();
-    })();
-</script>
 </head>
 <body>
     <section class="page-header">
@@ -144,6 +108,40 @@ line2.drawN(0 , {
       </footer>
 
     </section>
-  
+<script>
+    function display(){
+	var c = document.getElementById('canvas');
+        line = new LNum( -10, 10, c );
+        line.display();
+        line.drawN( 5 );
+        line.drawN( -5.5 );
+        line.drawQ( 6, 5 );
+        
+	var c2 = document.getElementById('canvas2');
+	line2 = new LNum( -30, 50, c2 );
+        line2.display({ color:"#000", fontFamily: "serif", tickSpacing:15 });
+        for (n=-29; n<49; n+=3) {
+                 n<0?mycol="#F00":mycol="#0B0";        
+		line2.drawN( n , {fontSize:10, color:mycol });
+	}
+	line2.drawN(0 , { fontSize:24, color:"#00F", ticklen:25 });
+        image = line2.getCanvasImage('png');
+//        image = image.replace("image/png", "application/octet-stream");
+//        window.open(image);
+        $("#cnvimg").attr('src', image);
+        
+	var c3 = document.getElementById('canvas3');
+        line3 = new LNum( -8, 1, c3 );
+        line3.display();
+        line3.drawN( -5 );
+        line3.drawSum(1,-2);
+        line3.drawSum(-1,-2);
+        line3.drawSum(-3,-2);
+    };
+
+    (function(){
+        display();
+    })();
+</script>  
 </body>
 </html>
