@@ -128,7 +128,7 @@ line2.drawN(0 , {
         image = line2.getCanvasImage('png');
 //        image = image.replace("image/png", "application/octet-stream");
 //        window.open(image);
-        $("#cnvimg").attr('src', image);
+	document.getElementById("cnvimg").src = image;
         
 	var c3 = document.getElementById('canvas3');
         line3 = new LNum( -8, 1, c3 );
