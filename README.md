@@ -6,7 +6,7 @@ on a html5 canvas element to give a graphic representation
 of numbers and simple sums. The image can be retrieved as a string containing a
 base64-encoded image URL (gif, jpeg or png).
 
-LNum.js uses nothing but your daily dose of vanilla javascript - I
+LNum.js depends on nothing but your daily dose of vanilla javascript - I
 created the class because I often need a simple and fast way
 to create a dynamic representation of integers and rational
 numbers for a basic maths lecture.
