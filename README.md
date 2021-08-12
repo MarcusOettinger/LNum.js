@@ -2,11 +2,12 @@
 
 LNum.js is a simple javascript object to display whole or
 rational numbers on a number line. The line is drawn
-on a html5 canvas element to show the numbers and simple
-sums. The image can be retrieved as a string containing a
+on a html5 canvas element to give a graphic representation
+of numbers and simple sums. The image can be retrieved as a string containing a
 base64-encoded image URL (gif, jpeg or png).
 
-I created the class because I needed a simple and fast way
+LNum.js uses nothing but your daily dose of vanilla javascript - I
+created the class because I often need a simple and fast way
 to create a dynamic representation of integers and rational
 numbers for a basic maths lecture.
 
