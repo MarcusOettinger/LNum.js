@@ -9,6 +9,9 @@
  */
 /**
  * @class LNum
+ * - a javascript object plotting a representation of a number x on a
+ * simple number line.
+ * @classdesc
  * is a javascript object plotting a representation of a number x on a
  * simple number line.
  * Here's a [demo page]{@link https://MarcusOettinger.github.io/LNum.js/}.<br>
