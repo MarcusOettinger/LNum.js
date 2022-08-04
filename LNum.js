@@ -26,10 +26,12 @@
  * @version 0.2
  * @license MIT (see {@link http://opensource.org/licenses/MIT} or LICENSE).
  * @see {@link https://marcusoettinger.github.io/LNum.js|LNum Example}
- * LNum ( a, b, cnv): LNum constructor
+ * @constructor
  * @param{number} a: start of interval [a,b] to draw
  * @param{number} b: end of interval
  * @param{object} cnv: the canvas to draw on
+ * @example var foobaz = new LNum( -1, 10, canvas) for a numberline spanning the
+ * interval from -1 to 10 to be drawn on canvas.
  */
 function LNum( a, b, cnv) {
         // Private:
