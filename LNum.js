@@ -1,14 +1,30 @@
 // Tue Sep  3 16:05:41     2019
 // v 0.2: vanilla javascript (a bit more suckless - does not rely on
 // jQuery and jcanvas anymore).
+/** 
+ *  @file LNum.js: sketch given numbers on a number line in a html5 canvas.
+ *  @author Marcus Oettinger <info@oettinger-phyiscs.de>
+ *  @version 0.2
+ *  @license MIT (see {@link http://opensource.org/licenses/MIT} or LICENSE).
+ */
 /**
  * @class LNum
+ * is a javascript object plotting a representation of a number x on a
+ * simple number line.
+ * Here's a [demo page]{@link https://MarcusOettinger.github.io/LNum.js/}.<br>
+ * License: [the MIT License]{@link http://opensource.org/licenses/MIT}.<br>
+ * <br>
+ * Graphics are drawn onto a html5 canvas - this should nowadays
+ * be supported  by most browsers.<br><br>
+ * I wrote the code because I needed a dynamic plot of number lines in
+ * webpages for a a basic maths lecture. It serves a purpose and is far from
+ * being cleanly written, nicely formatted or similar.
  * @author Marcus Oettinger <info@oettinger-physics.de>
  * @version 0.2
- * @license MIT License
+ * @license MIT (see {@link http://opensource.org/licenses/MIT} or LICENSE).
  * @see {@link https://marcusoettinger.github.io/LNum.js|LNum Example}
  * LNum ( a, b, cnv): LNum constructor
- * @param{number} a: start of interval [a,b]
+ * @param{number} a: start of interval [a,b] to draw
  * @param{number} b: end of interval
  * @param{object} cnv: the canvas to draw on
  */
@@ -29,8 +45,12 @@ function LNum( a, b, cnv) {
         var _TICKSCALE= 1;
 
         /** 
-	 * options 
-	 * @typedef {options}
+	// default options - values can be set for every number displayed
+	/**
+	 * Options used to change the appearance of a plot. This set of options
+	 * is used in all methods displaying the line and/or numbers.
+	
+	 * @typedef {Object} options~LNum
 	 * @property {boolean} clear - whether the canvas should be cleared
 	 * @property {boolean} line - whether the numberline should be drawn
 	 * @property {number} tickSpacing - 0 to autospace, draw a tick for every whole number
@@ -65,8 +85,7 @@ function LNum( a, b, cnv) {
 			arrowRadius: 10,
         };
 
-
-        // check interval: paranoia mode!
+	// check interval: paranoia mode!
         a == b? b=a+10:b;
         _left = min(a,b);
         _right = max(a,b);
@@ -78,8 +97,7 @@ function LNum( a, b, cnv) {
 	 * object).
 	 * @private
          * @param { Object } target
-	 * @param {Object } [ object1 ]
-	 * @param {object } [ objectN ] 
+	 * @param { options } [, object1 ] [, objectN ]
 	 */
         function extend(){
 	    for(var i=1; i<arguments.length; i++)
@@ -110,13 +128,13 @@ function LNum( a, b, cnv) {
 		return index >= 0 && input.indexOf(search, index) > -1;
 	}
 
-
 	/**
 	 *
 	 * _setFont: set the font to use on the canvas context.
 	 * @private
          * @param { ctx } the context
-         * @param { params } options ('fontSize' and 'fontFamily' are used to define a font)
+         * @param { options } {@link CNum.options} ('fontSize' and 'fontFamily'
+	 * can be used to define a font)
 	 */
 	function _setFont(ctx, params) {
 		var str = params.fontSize;
@@ -299,19 +317,22 @@ function LNum( a, b, cnv) {
         // Public:
         // =======================================================
 
-        /**
-         * setCanvas ( cnv ): set the canvas to draw the line on
+         /**
+         * setCanvas( cnv ): set the canvas to plot on
          * @param {integer} cnv the canvas to use
+         * @returns { canvas } cnv 
          */
         this.setCanvas = function( cnv ) { 
         	_daCanvas = cnv;
-        	_dactx = cnv.getContext("2d");
+        	_dactx = (cnv) ? cnv.getContext("2d") : null ;
+        	return cnv;
         };
 
         /**
 	 * Return the current image as base64-encoded image-string
-         * @param { string } type type of image
-         * @returns { string }
+         * @param { string } type type of image in the form of a standard MIME type.
+	 * Typical values for the type parameter are "image/png" or "image/jpeg".
+         * @returns { string } a base64-encoded image string.
          */
         this.getCanvasImage = function( type ) {
         	if (_daCanvas.toDataURL) {
@@ -328,14 +349,15 @@ function LNum( a, b, cnv) {
 
 
         /** 
-         * drawQ( z, n, options ): draw a rational number q=(z/n) where z is a whole number and n a natural one on the number line at q = z/n.
+         * drawQ( z, n, options ): draw a rational number q=(z/n) where z is a whole number 
+	 * and n a natural one on the number line at q = z/n.
          * @param { number } z - the numerator of the fraction
          * @param { number } n - the denominator of the fraction (not 0)
          * @param { options } options - LNum {@link options}
          */
         this.drawQ = function ( z, n , options) {
                 if ( n==0 ) { 
-                    alert("n in q=z/n must not be zero!");
+                    alert("drawQ: n in q=z/n must not be zero!");
                     return;
                 }
                 var settings = extend( {}, _defaults, options );
@@ -357,7 +379,7 @@ function LNum( a, b, cnv) {
 
 
         /**
-	 * Draw a number on the number line at n. Decimal numbers are ok.
+	 * Draw a number on the number line at n. Decimal numbers will be displayed with a dot.
          * @param { number } n - the number to draw
          * @param { options } options - LNum {@link options}
          */
@@ -373,7 +395,7 @@ function LNum( a, b, cnv) {
 
 
         /** 
-         * Draw the starting value n and the step needed for n+m and the result
+         * Draw the starting value n, the step needed for n+m and the result.
 	 * @param {number} n - the number to start with
 	 * @param {number} m - the summand to add
          * @param { options } options - LNum {@link options}
@@ -411,9 +433,10 @@ function LNum( a, b, cnv) {
         } // drawSum
 
         /** Draw the number line on the canvas set by
-         * @see setCanvas.
+	 * [setCanvas()]{@link LNum#setCanvas}.
 	 * This function is used to to plot the line itself.
          * @param { options } options - LNum {@link options}
+	 * @see [setCanvas()]{@link LNum#setCanvas}: Set the canvas to draw on.
         */
         this.display = function(options){
                 // handle defaults
@@ -425,7 +448,6 @@ function LNum( a, b, cnv) {
                     _count = 0;
                 }
                 if (settings.line) numberline(settings);
-
         };
 
         // return a brandnew LNum :-)
